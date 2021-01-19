@@ -103,7 +103,7 @@ function App() {
             </StyledTruckLabels>
 
             <StyledTimelineContainer>
-               <TimelineHeader width={minutesRange * defaults.pixelsPerMinutes} />
+               <TimelineHeader width={minutesRange * defaults.pixelsPerMinutes} startDate={startDate} endDate={endDate} />
                {trucksWithOrders.map((truckData: TruckWithOrders, idx: number) => (
                   <OrderLineComponent key={idx} assignedOrders={truckData.assignedOrders} width={size} startDate={startDate} endDate={endDate} />
                ))}

@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { format } from "date-fns";
 import { defaults } from "../assets/defaults";
 
 const OrderLineComponent = ({ assignedOrders, width, startDate, endDate }) => {
@@ -21,8 +20,8 @@ const OrderLineComponent = ({ assignedOrders, width, startDate, endDate }) => {
                >
                   <div className="head">{order.id}</div>
                   <div className="dates">
-                     {minuteDuration}
-                     {/* {order.from} - {order.to} */}
+                     {/* {minuteDuration} */}
+                     {order.from} - {order.to}
                   </div>
                </StyledOrder>
             );
