@@ -41,20 +41,23 @@ function getLatestOrderEndDate(orders: Array<OrderType>): Date {
    return orderedEndDates[endDates.length - 1];
 }
 
+interface SizeState {
+   pixelsPerMinutes: number;
+};
+
+const initialState: SizeState = {
+   pixelsPerMinutes: defaults.pixelsPerMinutes,
+};
+export const SizeContext = React.createContext<SizeState>(initialState);
+
+
 function App() {
    const [trucksWithOrders, setTrucksWithOrders] = useState<TruckWithOrders[]>([]);
-   const [size, setSize] = useState<number>(300);
 
    const [startDate, setStartDate] = useState<Date>(getEarliestOrderStartDate(TrucksDataSource.orders));
    const [endDate, setEndDate] = useState<Date>(getLatestOrderEndDate(TrucksDataSource.orders));
    const [minutesRange, setMinutesRange] = useState(0);
-   // const [pixelsPerMinutes, setPixelsPerMinutes] = useState(0.5);
-
-   const handleSliderChange = (e, value) => {
-      if (value !== size) {
-         setSize(value as number);
-      }
-   };
+   const [pixelsPerMinutes, setPixelsPerMinutes] = useState<number>(defaults.pixelsPerMinutes);
 
    useEffect(() => {
       const trucksWithOrders = TrucksDataSource.trucks.map((truck: TruckType) => {
@@ -74,28 +77,32 @@ function App() {
 
       const minutesRange = Math.round((endDate!.getTime() - startDate!.getTime()) / 1000 / 60);
       setMinutesRange(minutesRange);
-
-      console.log(minutesRange / 60 / 24);
    }, []);
 
+   const handleSliderChange = (e, value) => {
+      if (value !== pixelsPerMinutes) {
+         setPixelsPerMinutes(value as number);
+      }
+   };
+
    return (
-      <div>
+      <SizeContext.Provider value={{ pixelsPerMinutes }}>
          <h1>HELLO Nexogen</h1>
          <ControlsWrapper>
-            <Slider min={200} max={500} step={5} value={size} onChange={handleSliderChange} />
+            <Slider min={0.2} max={0.8} step={0.1} value={pixelsPerMinutes} onChange={handleSliderChange} />
          </ControlsWrapper>
          <br />
 
          <MainContainer>
             <StyledTruckLabels>
-               <StyledTruckTitle width={defaults.truckLabelWidth}>
+               <StyledTruckTitle width={defaults.truckNameLabelWidth}>
                   <span>Trucks</span>
                   <i className="fas fa-angle-down"></i>
                </StyledTruckTitle>
 
                {trucksWithOrders.map((truckWithOrder, idx) => {
                   return (
-                     <StyledTruckLabel key={idx} labelWidth={defaults.truckLabelWidth}>
+                     <StyledTruckLabel key={idx} labelWidth={defaults.truckNameLabelWidth}>
                         {truckWithOrder.name}
                      </StyledTruckLabel>
                   );
@@ -103,13 +110,13 @@ function App() {
             </StyledTruckLabels>
 
             <StyledTimelineContainer>
-               <TimelineHeader width={minutesRange * defaults.pixelsPerMinutes} startDate={startDate} endDate={endDate} />
+               <TimelineHeader widthInMinutes={minutesRange} timelineStartDate={startDate} timelineEndDate={endDate} />
                {trucksWithOrders.map((truckData: TruckWithOrders, idx: number) => (
-                  <OrderLineComponent key={idx} assignedOrders={truckData.assignedOrders} width={size} startDate={startDate} endDate={endDate} />
+                  <OrderLineComponent key={idx} assignedOrders={truckData.assignedOrders} startDate={startDate} endDate={endDate} />
                ))}
             </StyledTimelineContainer>
          </MainContainer>
-      </div>
+      </SizeContext.Provider>
    );
 }
 
@@ -124,17 +131,27 @@ const MainContainer = styled.div`
 `;
 
 const StyledTruckLabels = styled.div`
-   margin-right: 4px;
+   margin-right: 8px;
 `;
 
-const StyledTruckLabel = styled.div<{ labelWidth?: number }>`
+const StyledTruckTitle = styled.div<{ width?: number }>`
+   background: black;
+   color: white;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   height: ${defaults.headerHeight}px;
+   ${(props) => props.width && `width: ${props.width}px;`};
+`;
+
+const StyledTruckLabel = styled.div<{ labelWidth: number }>`
    display: flex;
    align-items: center;
    justify-content: center;
 
    flex-shrink: 0;
-   width: 100px;
-   width: ${(props) => props.labelWidth && `${props.labelWidth}px`};
+   width: ${(props) => props.labelWidth}px;
 
    height: 40px;
    background-color: #333;
@@ -148,16 +165,4 @@ const StyledTimelineContainer = styled.div`
    background: #e7f6fa;
    overflow-y: auto;
    overflow-x: auto;
-`;
-
-const StyledTruckTitle = styled.div<{ width?: number }>`
-   background: black;
-   color: white;
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   margin-right: 12px;
-   height: ${defaults.headerHeight}px;
-   ${(props) => props.width && `width: ${props.width}px;`};
 `;
