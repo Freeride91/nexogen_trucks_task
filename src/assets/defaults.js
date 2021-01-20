@@ -1,14 +1,12 @@
 export const defaults = {
    pixelsPerMinutes: 0.5,
    
-   lineHeight: 40,
-   lineGap: 5,
+   lineHeight: 55,
+   lineGap: 8,
    
-   headerHeight: 50,
-   
-   truckNameLabelWidth: 120,
+   timelineHeaderHeight: 50,
    timelineHeaderDayLabelWidth: 100,
 
-   timeStartGutterMinutes: 100,
-   timeEndGutterMinutes: 100,
+   timeStartGutterMinutes: 60,
+   timeEndGutterMinutes: 60,
 };

@@ -4,11 +4,18 @@ import { defaults } from "../assets/defaults";
 import { format } from "date-fns";
 import { SizeContext } from "../App";
 
-const OrderLineComponent = ({ assignedOrders, startDate, endDate }) => {
+const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
    const { pixelsPerMinutes: pixPerMin } = React.useContext(SizeContext);
-   console.log("RERENDER order");
+   
+   const fullLineWidth =
+      widthInMinutes * pixPerMin +
+      defaults.timeStartGutterMinutes * pixPerMin +
+      defaults.timeEndGutterMinutes * pixPerMin +
+      defaults.timelineHeaderDayLabelWidth;
+
+
    return (
-      <StyledOrderLine>
+      <StyledOrderLine width={fullLineWidth}>
          {assignedOrders.map((order) => {
             const order_fromDate = new Date(order.from);
             const order_toDate = new Date(order.to);
@@ -21,9 +28,9 @@ const OrderLineComponent = ({ assignedOrders, startDate, endDate }) => {
             return (
                <StyledOrder key={order.id} posLeft={posLeft} width={orderWidth}>
                   <div className="head">{order.id}</div>
-                  {/* <div className="dates">
+                  <div className="dates">
                      {format(order_fromDate, "MM.dd. HH:mm")} - {format(order_toDate, "MM.dd. HH:mm")}
-                  </div> */}
+                  </div>
                </StyledOrder>
             );
          })}
@@ -31,32 +38,39 @@ const OrderLineComponent = ({ assignedOrders, startDate, endDate }) => {
    );
 };
 
-export default OrderLineComponent;
+export default OrderLine;
 
-const StyledOrderLine = styled.div`
-   display: flex;
-   align-items: center;
+
+interface OrderLineProps {
+   width: number;
+}
+
+const StyledOrderLine = styled.div.attrs<OrderLineProps>(
+   (props) => ({
+      style: {
+         width: props.width + "px"
+      }
+   })
+)<OrderLineProps>`
+   background: #fff;
    height: ${defaults.lineHeight}px;
-   border-bottom: 1px solid #fff;
-
-   margin: ${defaults.lineGap}px 0;
-
+   margin: ${defaults.lineGap}px 0 0 0;
    position: relative;
 `;
 
-interface ItemProps {
+interface OrderItemProps {
    posLeft: number;
    width: number;
 }
 
-const StyledOrder = styled.div.attrs<ItemProps>(
+const StyledOrder = styled.div.attrs<OrderItemProps>(
    (props) => ({
       style: {
          left: props.posLeft + "px",
          width: props.width + "px"
       }
    })
-)<ItemProps>`
+)<OrderItemProps>`
    display: flex;
    align-items: center;
    justify-content: center;
@@ -64,21 +78,23 @@ const StyledOrder = styled.div.attrs<ItemProps>(
 
    position: absolute;
 
-   height: 40px;
+   height: ${defaults.lineHeight}px;
 
-   background-color: #bebebe;
+   background-color: #eeeeee;
    color: #fff;
-   border: 1px solid white;
-   border-radius: 3px;
+   border: 1px solid #333;
    padding: 0 4px;
 
    .head {
-      background: white;
+      /* background: white; */
       color: #272222;
+      font-size: 14px;
+      font-weight: bold;
       padding: 2px;
    }
 
    .dates {
-      font-size: 12px;
+      font-size: 11px;
+      color: red;
    }
 `;

@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import TrucksDataSource from "./assets/trucktimeline.json";
-import OrderLineComponent from "./components/OrderLineComponent";
+import OrderLine from "./components/OrderLine";
 import styled from "styled-components";
 import Slider from "@material-ui/core/Slider";
-import { isBefore, isAfter } from "date-fns";
 import TimelineHeader from "./components/TimelineHeader";
 import { defaults } from "./assets/defaults";
+import LicensePlate from "./components/LicensePlate";
+import { getEarliestOrderStartDate, getLatestOrderEndDate } from "./utils/dateUtils";
 
 type TruckType = {
    name: string;
    assignedOrderId: Array<string>;
 };
 
-type OrderType = {
+export type OrderType = {
    id: string;
    from: string;
    to: string;
@@ -22,45 +23,26 @@ type TruckWithOrders = TruckType & {
    assignedOrders: Array<OrderType>;
 };
 
-function getEarliestOrderStartDate(orders: Array<OrderType>): Date {
-   let startDates = orders.map((order) => new Date(order.from));
-   let orderedStartDates = startDates.sort((a, b) => {
-      if (isBefore(a, b)) return -1;
-      if (isAfter(a, b)) return 1;
-      else return 0;
-   });
-   return orderedStartDates[0];
-}
-function getLatestOrderEndDate(orders: Array<OrderType>): Date {
-   let endDates = orders.map((order) => new Date(order.to));
-   let orderedEndDates = endDates.sort((a, b) => {
-      if (isBefore(a, b)) return -1;
-      if (isAfter(a, b)) return 1;
-      else return 0;
-   });
-   return orderedEndDates[endDates.length - 1];
-}
-
 interface SizeState {
    pixelsPerMinutes: number;
-};
+}
 
 const initialState: SizeState = {
    pixelsPerMinutes: defaults.pixelsPerMinutes,
 };
-export const SizeContext = React.createContext<SizeState>(initialState);
 
+export const SizeContext = React.createContext<SizeState>(initialState);
 
 function App() {
    const [trucksWithOrders, setTrucksWithOrders] = useState<TruckWithOrders[]>([]);
 
    const [startDate, setStartDate] = useState<Date>(getEarliestOrderStartDate(TrucksDataSource.orders));
    const [endDate, setEndDate] = useState<Date>(getLatestOrderEndDate(TrucksDataSource.orders));
-   const [minutesRange, setMinutesRange] = useState(0);
+   const [minutesRange, setMinutesRange] = useState<number>(0);
    const [pixelsPerMinutes, setPixelsPerMinutes] = useState<number>(defaults.pixelsPerMinutes);
 
    useEffect(() => {
-      const trucksWithOrders = TrucksDataSource.trucks.map((truck: TruckType) => {
+      const trucksWithOrders: Array<TruckWithOrders> = TrucksDataSource.trucks.map((truck: TruckType) => {
          let assignedOrders: OrderType[] = [];
 
          truck.assignedOrderId.forEach((id) => {
@@ -87,82 +69,93 @@ function App() {
 
    return (
       <SizeContext.Provider value={{ pixelsPerMinutes }}>
-         <h1>HELLO Nexogen</h1>
-         <ControlsWrapper>
-            <Slider min={0.2} max={0.8} step={0.1} value={pixelsPerMinutes} onChange={handleSliderChange} />
-         </ControlsWrapper>
-         <br />
+         <StyledMainContainer>
+            <h1 className="center">Nexogen Frontend Task</h1>
 
-         <MainContainer>
-            <StyledTruckLabels>
-               <StyledTruckTitle width={defaults.truckNameLabelWidth}>
-                  <span>Trucks</span>
-                  <i className="fas fa-angle-down"></i>
-               </StyledTruckTitle>
+            <ControlsWrapper>
+               Time size: <Slider min={0.2} max={0.8} step={0.1} value={pixelsPerMinutes} onChange={handleSliderChange} />
+            </ControlsWrapper>
 
-               {trucksWithOrders.map((truckWithOrder, idx) => {
-                  return (
-                     <StyledTruckLabel key={idx} labelWidth={defaults.truckNameLabelWidth}>
-                        {truckWithOrder.name}
-                     </StyledTruckLabel>
-                  );
-               })}
-            </StyledTruckLabels>
+            <StyledDataContainer>
+               <StyledTrucksColumn>
+                  <StyledTitle>
+                     <span>Trucks</span>
+                     <i className="fas fa-angle-down"></i>
+                  </StyledTitle>
 
-            <StyledTimelineContainer>
-               <TimelineHeader widthInMinutes={minutesRange} timelineStartDate={startDate} timelineEndDate={endDate} />
-               {trucksWithOrders.map((truckData: TruckWithOrders, idx: number) => (
-                  <OrderLineComponent key={idx} assignedOrders={truckData.assignedOrders} startDate={startDate} endDate={endDate} />
-               ))}
-            </StyledTimelineContainer>
-         </MainContainer>
+                  {trucksWithOrders.map((truckWithOrder, idx) => {
+                     return (
+                        <StyledLicensePlateWrapper key={idx}>
+                           <LicensePlate label={truckWithOrder.name} />
+                        </StyledLicensePlateWrapper>
+                     );
+                  })}
+               </StyledTrucksColumn>
+
+               <StyledTimelineContainer>
+                  <TimelineHeader widthInMinutes={minutesRange} timelineStartDate={startDate} timelineEndDate={endDate} />
+                  {trucksWithOrders.map((truckData: TruckWithOrders, idx: number) => (
+                     <OrderLine
+                        key={idx}
+                        widthInMinutes={minutesRange}
+                        assignedOrders={truckData.assignedOrders}
+                        startDate={startDate}
+                        endDate={endDate}
+                     />
+                  ))}
+               </StyledTimelineContainer>
+            </StyledDataContainer>
+         </StyledMainContainer>
       </SizeContext.Provider>
    );
 }
 
 export default App;
 
+
+const StyledMainContainer = styled.div`
+   padding: 20px;
+   background: #F3F5FF;
+`;
+
 const ControlsWrapper = styled.div`
    width: 300px;
 `;
 
-const MainContainer = styled.div`
+const StyledDataContainer = styled.div`
    display: flex;
 `;
 
-const StyledTruckLabels = styled.div`
+const StyledTrucksColumn = styled.div`
    margin-right: 8px;
 `;
 
-const StyledTruckTitle = styled.div<{ width?: number }>`
+const StyledTitle = styled.div<{ width?: number }>`
    background: black;
    color: white;
    display: flex;
    flex-direction: column;
    align-items: center;
    justify-content: center;
-   height: ${defaults.headerHeight}px;
-   ${(props) => props.width && `width: ${props.width}px;`};
+   height: ${defaults.timelineHeaderHeight}px;
+   width: 200px;
 `;
 
-const StyledTruckLabel = styled.div<{ labelWidth: number }>`
+const StyledLicensePlateWrapper = styled.div`
    display: flex;
    align-items: center;
    justify-content: center;
 
    flex-shrink: 0;
-   width: ${(props) => props.labelWidth}px;
+   width: 200px;
 
-   height: 40px;
-   background-color: #333;
-   color: #fff;
-   border: 1px solid white;
+   height: ${defaults.lineHeight}px;
+   background-color: #ccc;
 
-   margin: ${defaults.lineGap}px 0;
+   margin: ${defaults.lineGap}px 0 0 0;
 `;
 
 const StyledTimelineContainer = styled.div`
-   background: #e7f6fa;
    overflow-y: auto;
    overflow-x: auto;
 `;
