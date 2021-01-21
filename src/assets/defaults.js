@@ -5,7 +5,7 @@ export const defaults = {
    lineGap: 8,
    
    timelineHeaderHeight: 50,
-   timelineHeaderDayLabelWidth: 100,
+   timelineHeaderDayLabelWidth: 180,
 
    timeStartGutterMinutes: 60,
    timeEndGutterMinutes: 60,

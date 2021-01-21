@@ -52,7 +52,7 @@ const StyledOrderLine = styled.div.attrs<OrderLineProps>(
       }
    })
 )<OrderLineProps>`
-   background: #fff;
+   /* background: #fff; */
    height: ${defaults.lineHeight}px;
    margin: ${defaults.lineGap}px 0 0 0;
    position: relative;
@@ -72,29 +72,27 @@ const StyledOrder = styled.div.attrs<OrderItemProps>(
    })
 )<OrderItemProps>`
    display: flex;
+   flex-direction: column;
    align-items: center;
    justify-content: center;
-   flex-direction: column;
 
    position: absolute;
 
    height: ${defaults.lineHeight}px;
 
-   background-color: #eeeeee;
-   color: #fff;
-   border: 1px solid #333;
-   padding: 0 4px;
+   background-color: #fff;
+   border: 2px solid #4fb8a2;
+   border-radius: 6px;
 
    .head {
-      /* background: white; */
-      color: #272222;
-      font-size: 14px;
+      color: #4fb8a2;
+      font-size: 15px;
       font-weight: bold;
       padding: 2px;
    }
 
    .dates {
       font-size: 11px;
-      color: red;
+      color: #6b6b6b;
    }
 `;

@@ -7,6 +7,7 @@ import TimelineHeader from "./components/TimelineHeader";
 import { defaults } from "./assets/defaults";
 import LicensePlate from "./components/LicensePlate";
 import { getEarliestOrderStartDate, getLatestOrderEndDate } from "./utils/dateUtils";
+import { ReactComponent as NexogenLogo } from "./assets/nexogen_logo.svg";
 
 type TruckType = {
    name: string;
@@ -70,7 +71,9 @@ function App() {
    return (
       <SizeContext.Provider value={{ pixelsPerMinutes }}>
          <StyledMainContainer>
-            <h1 className="center">Nexogen Frontend Task</h1>
+            <div className="center">
+               <NexogenLogo />
+            </div>
 
             <ControlsWrapper>
                Time size: <Slider min={0.2} max={0.8} step={0.1} value={pixelsPerMinutes} onChange={handleSliderChange} />
@@ -103,6 +106,8 @@ function App() {
                         endDate={endDate}
                      />
                   ))}
+
+                  {/* <StyledVerticalLine /> */}
                </StyledTimelineContainer>
             </StyledDataContainer>
          </StyledMainContainer>
@@ -112,10 +117,9 @@ function App() {
 
 export default App;
 
-
 const StyledMainContainer = styled.div`
-   padding: 20px;
-   background: #F3F5FF;
+   padding: 20px 4px;
+   background: #f2f4f8;
 `;
 
 const ControlsWrapper = styled.div`
@@ -131,7 +135,7 @@ const StyledTrucksColumn = styled.div`
 `;
 
 const StyledTitle = styled.div<{ width?: number }>`
-   background: black;
+   background: #4fb8a2;
    color: white;
    display: flex;
    flex-direction: column;
@@ -139,6 +143,8 @@ const StyledTitle = styled.div<{ width?: number }>`
    justify-content: center;
    height: ${defaults.timelineHeaderHeight}px;
    width: 200px;
+   font-size: 17px;
+   font-weight: bold;
 `;
 
 const StyledLicensePlateWrapper = styled.div`
@@ -150,7 +156,7 @@ const StyledLicensePlateWrapper = styled.div`
    width: 200px;
 
    height: ${defaults.lineHeight}px;
-   background-color: #ccc;
+   /* background-color: #fff; */
 
    margin: ${defaults.lineGap}px 0 0 0;
 `;
@@ -158,4 +164,16 @@ const StyledLicensePlateWrapper = styled.div`
 const StyledTimelineContainer = styled.div`
    overflow-y: auto;
    overflow-x: auto;
+   /* background: #fff; */
+   position: relative;
+`;
+
+const StyledVerticalLine = styled.div`
+   position: absolute;
+   content: "";
+   border-left: 1px solid #000;
+   top: 0;
+   left: 20px;
+   height: 100%;
+   z-index: 10;
 `;

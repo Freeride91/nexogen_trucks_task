@@ -44,20 +44,20 @@ const TimelineHeader = ({ widthInMinutes, timelineStartDate, timelineEndDate }) 
 
    return (
       <StyledHeader width={fullHeaderWidth}>
+         {/* DAYS ------- */}
          {/* drawing out the first order's start */}
          <DayLabel posLeft={firstDayLabelPos}>
-            <span>{format(timelineStartDate, "yyyy.MM.dd. ")}</span>
-            {/* <span>{format(timelineStartDate, "HH:mm")}</span> */}
+            <span>{format(timelineStartDate, "yyyy.MM.dd. EEEE")}</span>
          </DayLabel>
          {eachDayStartDescriptors.map((start: DateWithStartMinute) => {
             const posLeft = start.minutesPosition * pixPerMin + defaults.timeStartGutterMinutes * pixPerMin;
             return (
                <DayLabel posLeft={posLeft}>
-                  <span>{format(start.startDate, "yyyy.MM.dd.")}</span>
-                  {/* <span>{format(start.dayStartDate, "HH:mm")}</span> */}
+                  <span>{format(start.startDate, "yyyy.MM.dd. EEEE")}</span>
                </DayLabel>
             );
          })}
+         {/* HOURS ------- */}
          {eachHourStartDescriptors.map((start: DateWithStartMinute) => {
             const posLeft = start.minutesPosition * pixPerMin + defaults.timeStartGutterMinutes * pixPerMin;
             if (start.startDate.getHours() % 4 === 0) {
@@ -86,9 +86,10 @@ const StyledHeader = styled.div<{ width?: number }>`
 const DayLabel = styled.div<{ posLeft: number }>`
    position: absolute;
 
-   background: #e9e9e9;
-   color: black;
+   background: #4fb8a2;
+   color: #fff;
    font-size: 12px;
+   font-weight: bold;
 
    display: flex;
    justify-content: center;
@@ -99,7 +100,20 @@ const DayLabel = styled.div<{ posLeft: number }>`
 
    left: ${(props) => props.posLeft}px;
    width: ${defaults.timelineHeaderDayLabelWidth}px;
-   height: ${defaults.timelineHeaderHeight / 2}px;
+   height: ${defaults.timelineHeaderHeight / 2 - 2}px;
+
+   /* ::after {
+      content: "";
+
+      position: absolute;
+      right: -24px;
+
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 11px 0 11px 22px;
+      border-color: transparent transparent transparent #4fb8a2;
+   } */
 `;
 
 const HourLabel = styled.div.attrs<{ posLeft: number }>((props) => ({
@@ -121,7 +135,21 @@ const HourLabel = styled.div.attrs<{ posLeft: number }>((props) => ({
    border-left: 2px solid black;
 
    top: ${defaults.timelineHeaderHeight / 2}px;
-   height: ${defaults.timelineHeaderHeight / 2}px;
+   height: ${defaults.timelineHeaderHeight / 2 -4}px;
 
-   width: 40px;
+   width: 44px;
+
+   ::after {
+      content: "";
+
+      position: absolute;
+      bottom: -4px;
+      left: -6px;
+
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 10px 5px 0 5px;
+      border-color: #4fb8a1 transparent transparent transparent;
+   }
 `;
