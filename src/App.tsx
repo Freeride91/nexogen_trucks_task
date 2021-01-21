@@ -36,11 +36,9 @@ type DateWithStartMinute = {
 interface SizeState {
    pixelsPerMinutes: number;
 }
-
 const initialState: SizeState = {
    pixelsPerMinutes: defaults.pixelsPerMinutes,
 };
-
 export const SizeContext = React.createContext<SizeState>(initialState);
 
 function App() {
@@ -74,7 +72,7 @@ function App() {
       const truckNames: Array<string> = TrucksDataSource.trucks.map((truck) => truck.name);
       setTruckNamesForSuggest(truckNames);
 
-      const minutesRange = Math.round((endDate!.getTime() - startDate!.getTime()) / 1000 / 60);
+      const minutesRange = Math.round((endDate.getTime() - startDate.getTime()) / 1000 / 60);
       setMinutesRange(minutesRange);
 
       const eachDayStartDates: Array<Date> = eachDayOfInterval({ start: startDate, end: endDate });
@@ -191,7 +189,7 @@ function App() {
 export default App;
 
 const StyledMainContainer = styled.div`
-   padding: 20px 4px;
+   padding: 0 4px;
 `;
 
 const StyledHeaderWrapper = styled.div`
@@ -199,6 +197,9 @@ const StyledHeaderWrapper = styled.div`
    flex-direction: column;
    align-items: center;
    justify-content: center;
+   background: white;
+   padding: 20px 0 12px;
+   border-bottom: 1px solid #262233;
 
    .frontend-task {
       font-size: 17px;
@@ -209,8 +210,8 @@ const StyledHeaderWrapper = styled.div`
 
 const ControlsWrapper = styled.div`
    width: 100%;
-   /* max-width: 1080px; */
-   margin: 8px auto;
+   max-width: 1080px;
+   margin: 16px auto;
    display: flex;
    justify-content: space-between;
 
@@ -239,9 +240,12 @@ const ControlsWrapper = styled.div`
 `;
 
 const StyledDataContainer = styled.div`
+   width: 100%;
+   max-width: 1200px;
+   margin: 0 auto 16px;
+
    display: flex;
-   border-top: 2px solid #777;
-   border-bottom: 2px solid #777;
+   border: 1px solid #AAAAAA;
 `;
 
 const StyledTrucksColumn = styled.div`
@@ -256,7 +260,7 @@ const StyledCornerTitle = styled.div<{ width?: number }>`
    align-items: center;
    justify-content: center;
    height: ${theme.size.timelineHeaderHeight}px;
-   width: 180px;
+   width: 170px;
    font-size: 18px;
    font-weight: bold;
    i,
@@ -269,7 +273,7 @@ const StyledLicensePlateWrapper = styled.div`
    display: flex;
    align-items: center;
    justify-content: center;
-   width: 180px;
+   width: 170px;
    height: ${theme.size.lineHeight}px;
    margin: ${theme.size.lineGap}px 0 0 0;
 `;

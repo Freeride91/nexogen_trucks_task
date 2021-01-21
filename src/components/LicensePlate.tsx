@@ -21,7 +21,7 @@ export default LicensePlate;
 const StyledLicensePlate = styled.div`
    display: grid;
    grid-template-columns: 1fr 6fr;
-   width: 160px;
+   width: 140px;
    height: 40px;
    background-color: #fff;
    
@@ -29,7 +29,7 @@ const StyledLicensePlate = styled.div`
    border-radius: 4px;
 
    .left {
-      background: #274490;
+      background: #355bbd;
       color: #fff;
       display: flex;
       flex-direction: column;

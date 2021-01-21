@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { format } from "date-fns";
+import {format, parse} from 'date-fns'
 import { SizeContext } from "../App";
 import { theme } from "../theme/theme";
+import { defaults } from "../assets/defaults";
 
 const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
    const { pixelsPerMinutes: pixPerMin } = React.useContext(SizeContext);
@@ -16,8 +17,8 @@ const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
    return (
       <StyledOrderLine width={fullLineWidthPx}>
          {assignedOrders.map((order) => {
-            const order_fromDate = new Date(order.from);
-            const order_toDate = new Date(order.to);
+            const order_fromDate = parse(order.from, defaults.dateFormatString, new Date());
+            const order_toDate = parse(order.to, defaults.dateFormatString, new Date());
 
             const minuteDifferenceFromStart = Math.round((order_fromDate.getTime() - startDate.getTime()) / 1000 / 60);
             const minuteDuration = Math.round((order_toDate.getTime() - order_fromDate.getTime()) / 1000 / 60);
@@ -27,9 +28,9 @@ const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
             return (
                <StyledOrder key={order.id} posLeft={posLeft} width={orderWidth}>
                   <div className="head">{order.id}</div>
-                  {/* <div className="dates">
+                  <div className="dates">
                      {format(order_fromDate, "MM.dd. HH:mm")} - {format(order_toDate, "MM.dd. HH:mm")}
-                  </div> */}
+                  </div>
                </StyledOrder>
             );
          })}
