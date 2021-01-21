@@ -10,7 +10,7 @@ const LicensePlate = ({ label }) => {
             <b>H</b>
          </div>
          <div className="right">
-            {label.substr(0, 3)}-{label.substr(3, 3)}
+            {label.substr(0, 3)} {label.substr(3, 3)}
          </div>
       </StyledLicensePlate>
    );
@@ -25,7 +25,7 @@ const StyledLicensePlate = styled.div`
    height: 40px;
    background-color: #fff;
    
-   border: 3px solid #333;
+   border: 3px solid #5e5e5e;
    border-radius: 4px;
 
    .left {

@@ -1,21 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import { defaults } from "../assets/defaults";
 import { format } from "date-fns";
 import { SizeContext } from "../App";
+import { theme } from "../theme/theme";
 
 const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
    const { pixelsPerMinutes: pixPerMin } = React.useContext(SizeContext);
    
-   const fullLineWidth =
+   const fullLineWidthPx =
       widthInMinutes * pixPerMin +
-      defaults.timeStartGutterMinutes * pixPerMin +
-      defaults.timeEndGutterMinutes * pixPerMin +
-      defaults.timelineHeaderDayLabelWidth;
-
+      theme.size.timeStartGutterMinutes * pixPerMin +
+      theme.size.timeEndGutterMinutes * pixPerMin +
+      theme.size.timelineHeaderDayLabelWidth;
 
    return (
-      <StyledOrderLine width={fullLineWidth}>
+      <StyledOrderLine width={fullLineWidthPx}>
          {assignedOrders.map((order) => {
             const order_fromDate = new Date(order.from);
             const order_toDate = new Date(order.to);
@@ -23,14 +22,14 @@ const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
             const minuteDifferenceFromStart = Math.round((order_fromDate.getTime() - startDate.getTime()) / 1000 / 60);
             const minuteDuration = Math.round((order_toDate.getTime() - order_fromDate.getTime()) / 1000 / 60);
 
-            const posLeft = minuteDifferenceFromStart * pixPerMin + defaults.timeStartGutterMinutes * pixPerMin;
+            const posLeft = minuteDifferenceFromStart * pixPerMin + theme.size.timeStartGutterMinutes * pixPerMin;
             const orderWidth = minuteDuration * pixPerMin;
             return (
                <StyledOrder key={order.id} posLeft={posLeft} width={orderWidth}>
                   <div className="head">{order.id}</div>
-                  <div className="dates">
+                  {/* <div className="dates">
                      {format(order_fromDate, "MM.dd. HH:mm")} - {format(order_toDate, "MM.dd. HH:mm")}
-                  </div>
+                  </div> */}
                </StyledOrder>
             );
          })}
@@ -53,8 +52,8 @@ const StyledOrderLine = styled.div.attrs<OrderLineProps>(
    })
 )<OrderLineProps>`
    /* background: #fff; */
-   height: ${defaults.lineHeight}px;
-   margin: ${defaults.lineGap}px 0 0 0;
+   height: ${theme.size.lineHeight}px;
+   margin: ${theme.size.lineGap}px 0 0 0;
    position: relative;
 `;
 
@@ -78,14 +77,16 @@ const StyledOrder = styled.div.attrs<OrderItemProps>(
 
    position: absolute;
 
-   height: ${defaults.lineHeight}px;
+   height: ${theme.size.lineHeight}px;
 
    background-color: #fff;
-   border: 2px solid #4fb8a2;
-   border-radius: 6px;
+   border: 2px solid #39a38c;
+   border-radius: 4px;
+
+   z-index: 11;
 
    .head {
-      color: #4fb8a2;
+      color: #333;
       font-size: 15px;
       font-weight: bold;
       padding: 2px;
@@ -93,6 +94,7 @@ const StyledOrder = styled.div.attrs<OrderItemProps>(
 
    .dates {
       font-size: 11px;
-      color: #6b6b6b;
+      color: ${theme.colors.nexogenBrand};
+      letter-spacing: -0.5px;
    }
 `;
