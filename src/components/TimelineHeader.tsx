@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { format, eachDayOfInterval, differenceInMinutes, eachHourOfInterval } from "date-fns";
+import { add, format, isBefore } from "date-fns";
 import { SizeContext } from "../App";
 import { theme } from "../theme/theme";
+import { defaults } from "../assets/defaults";
 
 type DateWithStartMinute = {
    startDate: Date;
@@ -20,13 +21,18 @@ const TimelineHeader = ({ timelineStartDate, widthInMinutes, dayStartDescriptors
 
    const firstDayLabelPos = theme.size.timeStartGutterMinutes * pixPerMin;
 
+   console.log(dayStartDescriptors[0].startDate);
+
    return (
       <StyledHeader width={fullHeaderWidthPx}>
          {/* DAYS ------- */}
-         {/* drawing out the first order's start */}
-         <DayLabel posLeft={firstDayLabelPos}>
-            <span>{format(timelineStartDate, "yyyy.MM.dd. EEEE")}</span>
-         </DayLabel>
+         {/* drawing out the first order's start date LABEL (if it fits in :D ) */}
+         {isBefore(add(timelineStartDate, { minutes: theme.size.timelineHeaderDayLabelWidth / pixPerMin }), dayStartDescriptors[0].startDate) && (
+            <DayLabel posLeft={firstDayLabelPos}>
+               <span>{format(timelineStartDate, "yyyy.MM.dd. EEEE")}</span>
+            </DayLabel>
+         )}
+
          {dayStartDescriptors.map((start: DateWithStartMinute, idx) => {
             const posLeft = start.minutesPosition * pixPerMin + theme.size.timeStartGutterMinutes * pixPerMin;
             return (
@@ -38,7 +44,7 @@ const TimelineHeader = ({ timelineStartDate, widthInMinutes, dayStartDescriptors
          {/* HOURS ------- */}
          {hourStartDescriptors.map((start: DateWithStartMinute) => {
             const posLeft = start.minutesPosition * pixPerMin + theme.size.timeStartGutterMinutes * pixPerMin;
-            if (start.startDate.getHours() % 4 === 0) {
+            if (start.startDate.getHours() % defaults.hourLabelFrequency === 0) {
                return (
                   <HourLabel posLeft={posLeft} key={posLeft}>
                      <span>{format(start.startDate, "HH:mm")}</span>
@@ -103,7 +109,7 @@ const HourLabel = styled.div.attrs<{ posLeft: number }>((props) => ({
    border-left: 2px solid black;
 
    top: ${theme.size.timelineHeaderHeight / 2}px;
-   height: ${theme.size.timelineHeaderHeight / 2 -4}px;
+   height: ${theme.size.timelineHeaderHeight / 2 - 4}px;
 
    width: 44px;
 
