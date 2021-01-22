@@ -54,7 +54,7 @@ export default TimelineHeader;
 
 const StyledHeader = styled.div<{ width?: number }>`
    display: flex;
-   background: #f2f4f8;
+   background: ${theme.colors.background};
    height: ${theme.size.timelineHeaderHeight}px;
    ${(props) => props.width && `width: ${props.width}px;`};
 
@@ -89,7 +89,7 @@ const HourLabel = styled.div.attrs<{ posLeft: number }>((props) => ({
 }))<{ posLeft: number }>`
    position: absolute;
 
-   background: #d0ebe5;
+   background: ${theme.colors.nexogenBrandLighter};
    color: black;
    font-size: 12px;
    font-family: "Poppins", sans-serif;

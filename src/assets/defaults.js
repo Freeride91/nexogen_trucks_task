@@ -1,4 +1,4 @@
 export const defaults = {
-   pixelsPerMinutes: 0.5,
+   pixelsPerMinutes: 0.4,
    dateFormatString: "yyyy.MM.dd HH:mm:ss",
 };

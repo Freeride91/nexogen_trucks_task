@@ -1,7 +1,7 @@
 export const theme = {
    size: {
-      lineHeight: 50,
-      lineGap: 8,
+      lineHeight: 46,
+      lineGap: 12,
       
       timelineHeaderHeight: 50,
       timelineHeaderDayLabelWidth: 180,
@@ -10,6 +10,10 @@ export const theme = {
       timeEndGutterMinutes: 60,
    },
    colors: {
-       nexogenBrand: '#4fb8a2'
+      background: '#f2f4f8',
+      nexogenBrand: '#4fb8a2',
+      nexogenBrandDarker: '#3F9683',
+      nexogenBrandLighter: '#d0ebe5',
+      lineHighlighter: '#E4EAF5',
    }
 }

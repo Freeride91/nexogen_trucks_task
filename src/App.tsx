@@ -12,6 +12,8 @@ import FilterInput from "./components/FilterInput";
 import { withStyles } from "@material-ui/core/styles";
 import { theme } from "./theme/theme";
 import { defaults } from "./assets/defaults";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 
 type TruckType = {
    name: string;
@@ -43,9 +45,9 @@ export const SizeContext = React.createContext<SizeState>(initialState);
 
 function App() {
    const [truckNamesForSuggest, setTruckNamesForSuggest] = useState<Array<string>>([]);
-   const [truckNameFilter, setTruckNameFilter] = useState<string>("");
 
    const [trucksWithOrders, setTrucksWithOrders] = useState<TruckWithOrders[]>([]);
+   const [filteredTrucksWithOrders, setFilteredTrucksWithOrders] = useState<TruckWithOrders[]>([]);
 
    const [startDate, setStartDate] = useState<Date>(getEarliestOrderStartDate(TrucksDataSource.orders));
    const [endDate, setEndDate] = useState<Date>(getLatestOrderEndDate(TrucksDataSource.orders));
@@ -53,6 +55,8 @@ function App() {
    const [pixelsPerMinutes, setPixelsPerMinutes] = useState<number>(defaults.pixelsPerMinutes);
    const [dayStartDescriptors, setDayStartDescriptors] = useState<Array<DateWithStartMinute>>([]);
    const [hourStartDescriptors, setHourStartDescriptors] = useState<Array<DateWithStartMinute>>([]);
+
+   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
 
    useEffect(() => {
       const trucksWithOrders: Array<TruckWithOrders> = TrucksDataSource.trucks.map((truck: TruckType) => {
@@ -68,6 +72,7 @@ function App() {
          return { ...truck, assignedOrders };
       });
       setTrucksWithOrders(trucksWithOrders);
+      setFilteredTrucksWithOrders(trucksWithOrders);
 
       const truckNames: Array<string> = TrucksDataSource.trucks.map((truck) => truck.name);
       setTruckNamesForSuggest(truckNames);
@@ -100,14 +105,15 @@ function App() {
       setHourStartDescriptors(eachHourStartDescriptors);
    }, []);
 
-   useEffect(() => {
-      console.log(truckNameFilter);
-   }, [truckNameFilter]);
-
    const handleSliderChange = (e, value) => {
       if (value !== pixelsPerMinutes) {
          setPixelsPerMinutes(value as number);
       }
+   };
+
+   const handleFilterChange = (value) => {
+      const filteredTrucksWithOrders = trucksWithOrders.filter((truck) => truck.name.startsWith(value.trim().toUpperCase()));
+      setFilteredTrucksWithOrders(filteredTrucksWithOrders);
    };
 
    return (
@@ -123,13 +129,17 @@ function App() {
                   <div className="title">Horizontal Zoom</div>
                   <div className="slider">
                      <i className="fas fa-search-minus"></i>
-                     <NexogenSlider min={0.2} max={0.8} step={0.1} value={pixelsPerMinutes} onChange={handleSliderChange} />
+                     <NexogenSlider min={0.3} max={1} step={0.1} value={pixelsPerMinutes} onChange={handleSliderChange} />
                      <i className="fas fa-search-plus"></i>
                   </div>
                </div>
+               <div className="checkbox-wrapper">
+                  <div className="title">Compact mode</div>
+                  <NexogenCheckbox checked={isCompactMode} onChange={(e) => setIsCompactMode(e.target.checked)} />
+               </div>
                <div className="filter-wrapper">
                   Truck Filter
-                  <FilterInput truckNames={truckNamesForSuggest} onChange={(value) => setTruckNameFilter(value)} />
+                  <FilterInput truckNames={truckNamesForSuggest} onChange={handleFilterChange} />
                </div>
             </ControlsWrapper>
 
@@ -140,14 +150,12 @@ function App() {
                      <i className="fas fa-angle-down"></i>
                   </StyledCornerTitle>
 
-                  {trucksWithOrders.map((truckWithOrder, idx) => {
-                     if (truckWithOrder.name.startsWith(truckNameFilter)) {
-                        return (
-                           <StyledLicensePlateWrapper key={truckWithOrder.name}>
-                              <LicensePlate label={truckWithOrder.name} />
-                           </StyledLicensePlateWrapper>
-                        );
-                     } else return null;
+                  {filteredTrucksWithOrders.map((truckWithOrder, idx) => {
+                     return (
+                        <StyledLicensePlateWrapper key={truckWithOrder.name} isDarker={idx % 2 === 0}>
+                           <LicensePlate label={truckWithOrder.name} />
+                        </StyledLicensePlateWrapper>
+                     );
                   })}
                </StyledTrucksColumn>
 
@@ -159,18 +167,17 @@ function App() {
                      hourStartDescriptors={hourStartDescriptors}
                   />
 
-                  {trucksWithOrders.map((truckData: TruckWithOrders, idx: number) => {
-                     if (truckData.name.startsWith(truckNameFilter)) {
-                        return (
-                           <OrderLine
-                              key={idx}
-                              widthInMinutes={minutesRange}
-                              assignedOrders={truckData.assignedOrders}
-                              startDate={startDate}
-                              endDate={endDate}
-                           />
-                        );
-                     } else return null;
+                  {filteredTrucksWithOrders.map((truckData: TruckWithOrders, idx: number) => {
+                     return (
+                        <OrderLine
+                           key={idx}
+                           isDarker={idx % 2 === 0}
+                           widthInMinutes={minutesRange}
+                           assignedOrders={truckData.assignedOrders}
+                           startDate={startDate}
+                           endDate={endDate}
+                        />
+                     );
                   })}
 
                   {hourStartDescriptors.map((start: DateWithStartMinute) => {
@@ -211,7 +218,7 @@ const StyledHeaderWrapper = styled.div`
 const ControlsWrapper = styled.div`
    width: 100%;
    max-width: 1080px;
-   margin: 16px auto;
+   margin: 16px auto 24px;
    display: flex;
    justify-content: space-between;
 
@@ -219,19 +226,37 @@ const ControlsWrapper = styled.div`
    font-weight: 200;
 
    .slider-wrapper {
-      width: 300px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 300px;
+      align-items: center;
+      justify-content: flex-end;
+      /* width: 300px; */
 
-      i {
-         padding: 0 4px;
-         color: ${theme.colors.nexogenBrand};
-         font-size: 20px;
-      }
+      text-align: center;
 
       .slider {
          display: flex;
+         width: 100%;
+
+         i {
+            padding: 0 4px;
+            color: ${theme.colors.nexogenBrand};
+            font-size: 20px;
+         }
       }
    }
+
+   .checkbox-wrapper {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+
+      /* .title {
+         padding: 9px 0;
+      } */
+   }
+
    .filter-wrapper {
       width: 300px;
       text-align: center;
@@ -245,7 +270,7 @@ const StyledDataContainer = styled.div`
    margin: 0 auto 16px;
 
    display: flex;
-   border: 1px solid #AAAAAA;
+   border: 1px solid #aaaaaa;
 `;
 
 const StyledTrucksColumn = styled.div`
@@ -265,17 +290,18 @@ const StyledCornerTitle = styled.div<{ width?: number }>`
    font-weight: bold;
    i,
    span {
-      color: #000;
+      color: #2a303e;
    }
 `;
 
-const StyledLicensePlateWrapper = styled.div`
+const StyledLicensePlateWrapper = styled.div<{ isDarker: boolean }>`
    display: flex;
    align-items: center;
    justify-content: center;
    width: 170px;
-   height: ${theme.size.lineHeight}px;
-   margin: ${theme.size.lineGap}px 0 0 0;
+   height: ${theme.size.lineHeight + theme.size.lineGap}px;
+   padding: ${theme.size.lineGap / 2}px 0;
+   background: ${(props) => props.isDarker && theme.colors.lineHighlighter};
 `;
 
 const StyledTimelineContainer = styled.div`
@@ -329,3 +355,14 @@ const NexogenSlider = withStyles({
       borderRadius: 4,
    },
 })(Slider);
+
+const NexogenCheckbox = withStyles({
+   root: {
+      color: theme.colors.nexogenBrand,
+      "&$checked": {
+         color: theme.colors.nexogenBrand,
+      },
+      padding: "0 8px",
+   },
+   checked: {},
+})((props: CheckboxProps) => <Checkbox color="default" {...props} />);

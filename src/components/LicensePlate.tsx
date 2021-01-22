@@ -29,7 +29,7 @@ const StyledLicensePlate = styled.div`
    border-radius: 4px;
 
    .left {
-      background: #355bbd;
+      background: #1A7CAD;
       color: #fff;
       display: flex;
       flex-direction: column;

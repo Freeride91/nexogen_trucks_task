@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import {format, parse} from 'date-fns'
+import { format, parse } from "date-fns";
 import { SizeContext } from "../App";
 import { theme } from "../theme/theme";
 import { defaults } from "../assets/defaults";
 
-const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
+const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate, isDarker }) => {
    const { pixelsPerMinutes: pixPerMin } = React.useContext(SizeContext);
-   
+
    const fullLineWidthPx =
       widthInMinutes * pixPerMin +
       theme.size.timeStartGutterMinutes * pixPerMin +
@@ -15,7 +15,7 @@ const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
       theme.size.timelineHeaderDayLabelWidth;
 
    return (
-      <StyledOrderLine width={fullLineWidthPx}>
+      <StyledOrderLine width={fullLineWidthPx} isDarker={isDarker}>
          {assignedOrders.map((order) => {
             const order_fromDate = parse(order.from, defaults.dateFormatString, new Date());
             const order_toDate = parse(order.to, defaults.dateFormatString, new Date());
@@ -40,21 +40,19 @@ const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate }) => {
 
 export default OrderLine;
 
-
 interface OrderLineProps {
    width: number;
+   isDarker: boolean;
 }
 
-const StyledOrderLine = styled.div.attrs<OrderLineProps>(
-   (props) => ({
-      style: {
-         width: props.width + "px"
-      }
-   })
-)<OrderLineProps>`
-   /* background: #fff; */
-   height: ${theme.size.lineHeight}px;
-   margin: ${theme.size.lineGap}px 0 0 0;
+const StyledOrderLine = styled.div.attrs<OrderLineProps>((props) => ({
+   style: {
+      width: props.width + "px",
+      background: props.isDarker && theme.colors.lineHighlighter,
+   },
+}))<OrderLineProps>`
+   height: ${theme.size.lineHeight + theme.size.lineGap}px;
+   padding: ${theme.size.lineGap / 2}px 0;
    position: relative;
 `;
 
@@ -63,14 +61,12 @@ interface OrderItemProps {
    width: number;
 }
 
-const StyledOrder = styled.div.attrs<OrderItemProps>(
-   (props) => ({
-      style: {
-         left: props.posLeft + "px",
-         width: props.width + "px"
-      }
-   })
-)<OrderItemProps>`
+const StyledOrder = styled.div.attrs<OrderItemProps>((props) => ({
+   style: {
+      left: props.posLeft + "px",
+      width: props.width + "px",
+   },
+}))<OrderItemProps>`
    display: flex;
    flex-direction: column;
    align-items: center;
@@ -81,7 +77,7 @@ const StyledOrder = styled.div.attrs<OrderItemProps>(
    height: ${theme.size.lineHeight}px;
 
    background-color: #fff;
-   border: 2px solid #39a38c;
+   border: 2px solid ${theme.colors.nexogenBrandDarker};
    border-radius: 4px;
 
    z-index: 11;
@@ -95,7 +91,7 @@ const StyledOrder = styled.div.attrs<OrderItemProps>(
 
    .dates {
       font-size: 11px;
-      color: ${theme.colors.nexogenBrand};
+      color: ${theme.colors.nexogenBrandDarker};
       letter-spacing: -0.5px;
    }
 `;
