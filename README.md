@@ -1,3 +1,7 @@
+# Hosted App: [Nexogen Task by András Polyák](http://polyakandras.hu/nexogentask/)
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
