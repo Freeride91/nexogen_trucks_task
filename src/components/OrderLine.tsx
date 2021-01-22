@@ -6,7 +6,7 @@ import { theme } from "../theme/theme";
 import { defaults } from "../assets/defaults";
 
 const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate, isDarker }) => {
-   const { pixelsPerMinutes: pixPerMin } = React.useContext(SizeContext);
+   const { pixelsPerMinutes: pixPerMin, isCompact } = React.useContext(SizeContext);
 
    const fullLineWidthPx =
       widthInMinutes * pixPerMin +
@@ -15,7 +15,7 @@ const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate, isDarke
       theme.size.timelineHeaderDayLabelWidth;
 
    return (
-      <StyledOrderLine width={fullLineWidthPx} isDarker={isDarker}>
+      <StyledOrderLine width={fullLineWidthPx} isDarker={isDarker} isCompact={isCompact}>
          {assignedOrders.map((order) => {
             const order_fromDate = parse(order.from, defaults.dateFormatString, new Date());
             const order_toDate = parse(order.to, defaults.dateFormatString, new Date());
@@ -26,11 +26,13 @@ const OrderLine = ({ assignedOrders, widthInMinutes, startDate, endDate, isDarke
             const posLeft = minuteDifferenceFromStart * pixPerMin + theme.size.timeStartGutterMinutes * pixPerMin;
             const orderWidth = minuteDuration * pixPerMin;
             return (
-               <StyledOrder key={order.id} posLeft={posLeft} width={orderWidth}>
+               <StyledOrder key={order.id} posLeft={posLeft} width={orderWidth} isCompact={isCompact}>
                   <div className="head">{order.id}</div>
-                  <div className="dates">
-                     {format(order_fromDate, "MM.dd. HH:mm")} - {format(order_toDate, "MM.dd. HH:mm")}
-                  </div>
+                  {!isCompact && (
+                     <div className="dates">
+                        {format(order_fromDate, "MM.dd. HH:mm")} - {format(order_toDate, "MM.dd. HH:mm")}
+                     </div>
+                  )}
                </StyledOrder>
             );
          })}
@@ -43,6 +45,7 @@ export default OrderLine;
 interface OrderLineProps {
    width: number;
    isDarker: boolean;
+   isCompact: boolean;
 }
 
 const StyledOrderLine = styled.div.attrs<OrderLineProps>((props) => ({
@@ -51,14 +54,21 @@ const StyledOrderLine = styled.div.attrs<OrderLineProps>((props) => ({
       background: props.isDarker && theme.colors.lineHighlighter,
    },
 }))<OrderLineProps>`
+   position: relative;
+
    height: ${theme.size.lineHeight + theme.size.lineGap}px;
    padding: ${theme.size.lineGap / 2}px 0;
-   position: relative;
+
+   ${(props) =>
+      props.isCompact &&
+      `height: ${theme.size.lineHeight_compact + theme.size.lineGap_compact}px;
+      padding: ${theme.size.lineGap_compact / 2}px 0;`}
 `;
 
 interface OrderItemProps {
    posLeft: number;
    width: number;
+   isCompact: boolean;
 }
 
 const StyledOrder = styled.div.attrs<OrderItemProps>((props) => ({
@@ -75,6 +85,7 @@ const StyledOrder = styled.div.attrs<OrderItemProps>((props) => ({
    position: absolute;
 
    height: ${theme.size.lineHeight}px;
+   ${props => props.isCompact && `height: ${theme.size.lineHeight_compact}px;`}
 
    background-color: #fff;
    border: 2px solid ${theme.colors.nexogenBrandDarker};

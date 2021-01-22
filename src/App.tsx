@@ -12,7 +12,6 @@ import FilterInput from "./components/FilterInput";
 import { withStyles } from "@material-ui/core/styles";
 import { theme } from "./theme/theme";
 import { defaults } from "./assets/defaults";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 
 type TruckType = {
@@ -37,9 +36,11 @@ type DateWithStartMinute = {
 
 interface SizeState {
    pixelsPerMinutes: number;
+   isCompact: boolean;
 }
 const initialState: SizeState = {
    pixelsPerMinutes: defaults.pixelsPerMinutes,
+   isCompact: defaults.isCompactMode,
 };
 export const SizeContext = React.createContext<SizeState>(initialState);
 
@@ -56,7 +57,7 @@ function App() {
    const [dayStartDescriptors, setDayStartDescriptors] = useState<Array<DateWithStartMinute>>([]);
    const [hourStartDescriptors, setHourStartDescriptors] = useState<Array<DateWithStartMinute>>([]);
 
-   const [isCompactMode, setIsCompactMode] = useState<boolean>(false);
+   const [isCompactMode, setIsCompactMode] = useState<boolean>(defaults.isCompactMode);
 
    useEffect(() => {
       const trucksWithOrders: Array<TruckWithOrders> = TrucksDataSource.trucks.map((truck: TruckType) => {
@@ -117,7 +118,7 @@ function App() {
    };
 
    return (
-      <SizeContext.Provider value={{ pixelsPerMinutes }}>
+      <SizeContext.Provider value={{ pixelsPerMinutes, isCompact: isCompactMode }}>
          <StyledMainContainer>
             <StyledHeaderWrapper>
                <NexogenLogo />
@@ -138,13 +139,15 @@ function App() {
                   <NexogenCheckbox checked={isCompactMode} onChange={(e) => setIsCompactMode(e.target.checked)} />
                </div>
                <div className="filter-wrapper">
-                  Truck Filter
-                  <FilterInput truckNames={truckNamesForSuggest} onChange={handleFilterChange} />
+                  <span className="title">Truck&nbsp;Filter</span>
+                  <div className="filter">
+                     <FilterInput truckNames={truckNamesForSuggest} onChange={handleFilterChange} />
+                  </div>
                </div>
             </ControlsWrapper>
 
             <StyledDataContainer>
-               <StyledTrucksColumn>
+               <StyledTruckNamesColumn>
                   <StyledCornerTitle>
                      <span>Trucks</span>
                      <i className="fas fa-angle-down"></i>
@@ -152,12 +155,12 @@ function App() {
 
                   {filteredTrucksWithOrders.map((truckWithOrder, idx) => {
                      return (
-                        <StyledLicensePlateWrapper key={truckWithOrder.name} isDarker={idx % 2 === 0}>
-                           <LicensePlate label={truckWithOrder.name} />
+                        <StyledLicensePlateWrapper key={truckWithOrder.name} isDarker={idx % 2 === 0} isCompact={isCompactMode}>
+                           {isCompactMode ? <b>{truckWithOrder.name}</b> : <LicensePlate label={truckWithOrder.name} />}
                         </StyledLicensePlateWrapper>
                      );
                   })}
-               </StyledTrucksColumn>
+               </StyledTruckNamesColumn>
 
                <StyledTimelineContainer>
                   <TimelineHeader
@@ -217,21 +220,29 @@ const StyledHeaderWrapper = styled.div`
 
 const ControlsWrapper = styled.div`
    width: 100%;
-   max-width: 1080px;
+   max-width: 1200px;
    margin: 16px auto 24px;
-   display: flex;
-   justify-content: space-between;
+
+   display: grid;
+   grid-template-columns: 1fr 1fr 1fr;
+   grid-template-areas: "sli che fil";
+   gap: 12px;
 
    font-family: "Poppins", sans-serif;
-   font-weight: 200;
+   font-weight: 300;
+
+   @media (max-width: 768px) {
+      grid-template-columns: 1fr 1fr auto;
+      grid-template-areas:
+         "sli che"
+         "fil fil";
+   }
 
    .slider-wrapper {
       display: flex;
       flex-direction: column;
-      flex: 0 0 300px;
       align-items: center;
       justify-content: flex-end;
-      /* width: 300px; */
 
       text-align: center;
 
@@ -245,22 +256,39 @@ const ControlsWrapper = styled.div`
             font-size: 20px;
          }
       }
+      grid-area: sli;
    }
 
    .checkbox-wrapper {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
+      grid-area: che;
 
-      /* .title {
-         padding: 9px 0;
-      } */
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+
+      @media (max-width: 768px) {
+         align-items: center;
+         border-right: none;
+      }
    }
 
    .filter-wrapper {
-      width: 300px;
+      grid-area: fil;
       text-align: center;
-      /* background: #eee; */
+
+      @media (max-width: 768px) {
+         margin-top: 16px;
+         display: flex;
+         align-items: center;
+         justify-content: flex-end;
+
+         .filter {
+            margin-left: 8px;
+            flex: 0 0 200px;
+         }
+      }
    }
 `;
 
@@ -273,7 +301,7 @@ const StyledDataContainer = styled.div`
    border: 1px solid #aaaaaa;
 `;
 
-const StyledTrucksColumn = styled.div`
+const StyledTruckNamesColumn = styled.div`
    padding-bottom: 16px;
 `;
 
@@ -285,7 +313,7 @@ const StyledCornerTitle = styled.div<{ width?: number }>`
    align-items: center;
    justify-content: center;
    height: ${theme.size.timelineHeaderHeight}px;
-   width: 170px;
+
    font-size: 18px;
    font-weight: bold;
    i,
@@ -294,13 +322,19 @@ const StyledCornerTitle = styled.div<{ width?: number }>`
    }
 `;
 
-const StyledLicensePlateWrapper = styled.div<{ isDarker: boolean }>`
+const StyledLicensePlateWrapper = styled.div<{ isDarker: boolean; isCompact: boolean }>`
    display: flex;
    align-items: center;
    justify-content: center;
-   width: 170px;
+
    height: ${theme.size.lineHeight + theme.size.lineGap}px;
-   padding: ${theme.size.lineGap / 2}px 0;
+   padding: ${theme.size.lineGap / 2}px 8px;
+
+   ${(props) =>
+      props.isCompact &&
+      `height: ${theme.size.lineHeight_compact + theme.size.lineGap_compact}px;
+      padding: ${theme.size.lineGap_compact / 2}px 8px;`}
+
    background: ${(props) => props.isDarker && theme.colors.lineHighlighter};
 `;
 
